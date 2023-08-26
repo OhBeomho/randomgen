@@ -1,23 +1,45 @@
-import { styled } from "styled-components";
+import { keyframes, styled } from "styled-components";
 import { Input } from "../components/Input.styled";
 import Layout from "../components/Layout";
 import { useReducer, useCallback, ChangeEvent, useState } from "react";
+import { Button } from "../components/Button.styled";
 
 const Settings = styled.div`
 	display: flex;
 	align-items: center;
 	text-align: center;
+	padding: 10px;
+	gap: 5px;
 
 	& > * {
-		flex: 1;
+		min-width: max-content;
 	}
 `;
 
-type ActionType = "rangeStart" | "rangeEnd" | "count";
+const NumberAnimation = keyframes`
+	0% {
+		scale: 0;
+	}
+	80% {
+		scale: 1.2;
+	}
+	100% {
+		scale: 1;
+	}
+`;
+
+const NumberElement = styled.div<{ $delay: number }>`
+	display: inline-block;
+	margin: 2px;
+	scale: 0;
+	animation: ${NumberAnimation} 1s ${(props) => props.$delay}s forwards;
+`;
+
+type ActionType = "range1" | "range2" | "count";
 
 interface State {
-	rangeStart: number;
-	rangeEnd: number;
+	range1: number;
+	range2: number;
 	count: number;
 }
 
@@ -26,60 +48,51 @@ interface Action {
 	payload: number;
 }
 
-interface Error {
-	type: string;
-	message: string;
-}
-
 function reducer(state: State, action: Action): State {
-	switch (action.type) {
-		case "rangeStart":
-			return { ...state, rangeStart: action.payload };
-		case "rangeEnd":
-			return { ...state, rangeEnd: action.payload };
+	const { type, payload } = action;
+
+	switch (type) {
+		case "range1":
+			return { ...state, range1: payload };
+		case "range2":
+			return { ...state, range2: payload };
 		case "count":
-			return { ...state, count: action.payload };
+			return { ...state, count: payload };
 	}
 }
 
 export default function () {
-	const [state, dispatch] = useReducer(reducer, { rangeStart: 0, rangeEnd: 100, count: 10 });
-	const [error, setError] = useState<Error | null>(null);
+	const [state, dispatch] = useReducer(reducer, { range1: 0, range2: 100, count: 10 });
+	const [numbers, setNumbers] = useState<number[]>([]);
 	const changeState = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-		setError(null);
-		const { id: type, value, min, max } = e.target;
-		const minValue = Number(min),
-			maxValue = Number(max);
-		const payload = Number(value);
+		const { name: type, value } = e.target;
 
-		if (type !== "rangeStart" && type !== "rangeEnd" && type !== "count") {
+		if (type !== "range1" && type !== "range2" && type !== "count") {
 			return;
 		}
 
-		dispatch({ type, payload: payload || 0 });
-		e.target.value = value.replace(/0{1,}[1-9]/g, "");
-
-		let message;
-		if (payload < minValue) {
-			message = `최소값(${minValue})보다 작습니다.`;
-		} else if (max && payload > maxValue) {
-			message = `최대값(${maxValue})보다 작습니다.`;
-		}
-
-		if (message) {
-			setError({ type, message });
-			return;
+		dispatch({ type, payload: Number(value) || 0 });
+		if (value.startsWith("0")) {
+			e.target.value = value.replace(/0{1,}[1-9]/g, "");
 		}
 	}, []);
 	const getWidthStyle = useCallback(
 		(value: number) => ({ width: (String(value).length + 1) * 16 }),
 		[]
 	);
-	const getRandomNumbers = useCallback(() => {
-		// const { rangeStart, rangeEnd, count } = state;
+	const generateNumbers = useCallback(() => {
+		const { range1, range2, count } = state;
+		const min = range1 > range2 ? range2 : range1;
+		const max = range1 > range2 ? range1 : range2;
+		const result: number[] = [];
+
+		for (let i = 0; i < count; i++) {
+			result.push(Math.round(Math.random() * (max - min) + min));
+		}
+
+		setNumbers(() => result);
 	}, [state]);
 
-	// TODO: Make settings
 	return (
 		<Layout>
 			<h1>무작위 수 생성</h1>
@@ -89,20 +102,17 @@ export default function () {
 					<br />
 					<Input
 						type="number"
-						id="rangeStart"
-						min={0}
-						max={state.rangeEnd - 1}
-						value={state.rangeStart}
-						style={getWidthStyle(state.rangeStart)}
+						name="range1"
+						value={state.range1}
+						style={getWidthStyle(state.range1)}
 						onChange={changeState}
 					/>
 					~
 					<Input
 						type="number"
-						id="rangeEnd"
-						min={state.rangeStart + 1}
-						value={state.rangeEnd}
-						style={getWidthStyle(state.rangeEnd)}
+						name="range2"
+						value={state.range2}
+						style={getWidthStyle(state.range2)}
 						onChange={changeState}
 					/>
 				</div>
@@ -111,7 +121,7 @@ export default function () {
 					<br />
 					<Input
 						type="number"
-						id="count"
+						name="count"
 						min={1}
 						max={1000}
 						value={state.count}
@@ -120,7 +130,24 @@ export default function () {
 					/>
 				</div>
 			</Settings>
-			{error && <div style={{ color: "rgb(200, 0, 0)" }}>{error.message}</div>}
+			<Button onClick={generateNumbers}>생성</Button>
+			<div
+				style={{
+					marginTop: 20,
+					width: "90vw",
+					maxWidth: 500,
+					wordBreak: "break-word",
+					textAlign: "center"
+				}}
+			>
+				{numbers.length < 100
+					? numbers.map((num, index) => (
+							<NumberElement key={index} $delay={index * 0.1}>
+								{num}
+							</NumberElement>
+					  ))
+					: numbers.join(" ")}
+			</div>
 		</Layout>
 	);
 }
