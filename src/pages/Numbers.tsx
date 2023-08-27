@@ -1,4 +1,4 @@
-import { keyframes, styled } from "styled-components";
+import { styled } from "styled-components";
 import { Input } from "../components/Input.styled";
 import Layout from "../components/Layout";
 import { useReducer, useCallback, ChangeEvent, useState } from "react";
@@ -16,23 +16,9 @@ const Settings = styled.div`
 	}
 `;
 
-const NumberAnimation = keyframes`
-	0% {
-		scale: 0;
-	}
-	80% {
-		scale: 1.2;
-	}
-	100% {
-		scale: 1;
-	}
-`;
-
-const NumberElement = styled.div<{ $delay: number }>`
+const NumberElement = styled.div`
 	display: inline-block;
 	margin: 2px;
-	scale: 0;
-	animation: ${NumberAnimation} 1s ${(props) => props.$delay}s forwards;
 `;
 
 type ActionType = "range1" | "range2" | "count";
@@ -72,6 +58,7 @@ export default function () {
 		}
 
 		dispatch({ type, payload: Number(value) || 0 });
+
 		if (value.startsWith("0")) {
 			e.target.value = value.replace(/0{1,}[1-9]/g, "");
 		}
@@ -134,19 +121,15 @@ export default function () {
 			<div
 				style={{
 					marginTop: 20,
-					width: "90vw",
+					width: "95vw",
 					maxWidth: 500,
 					wordBreak: "break-word",
 					textAlign: "center"
 				}}
 			>
-				{numbers.length < 100
-					? numbers.map((num, index) => (
-							<NumberElement key={index} $delay={index * 0.1}>
-								{num}
-							</NumberElement>
-					  ))
-					: numbers.join(" ")}
+				{numbers.map((num, index) => (
+					<NumberElement key={index}>{num}</NumberElement>
+				))}
 			</div>
 		</Layout>
 	);
