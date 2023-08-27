@@ -1,20 +1,8 @@
-import { styled } from "styled-components";
 import { Input } from "../components/Input.styled";
 import Layout from "../components/Layout";
 import { useReducer, useCallback, ChangeEvent, useState } from "react";
 import { Button } from "../components/Button.styled";
-
-const Settings = styled.div`
-	display: flex;
-	align-items: center;
-	text-align: center;
-	padding: 10px;
-	gap: 5px;
-
-	& > * {
-		min-width: max-content;
-	}
-`;
+import { Settings } from "../components/Settings";
 
 type ActionType = "range1" | "range2" | "count";
 
@@ -46,13 +34,9 @@ export default function () {
 	const [state, dispatch] = useReducer(reducer, { range1: 0, range2: 100, count: 10 });
 	const [numbers, setNumbers] = useState<number[]>([]);
 	const changeState = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-		const { name: type, value } = e.target;
+		const { name, value } = e.target;
 
-		if (type !== "range1" && type !== "range2" && type !== "count") {
-			return;
-		}
-
-		dispatch({ type, payload: Number(value) || 0 });
+		dispatch({ type: name as ActionType, payload: Number(value) || 0 });
 
 		if (value.startsWith("0")) {
 			e.target.value = value.replace(/0{1,}[1-9]/g, "");
@@ -78,9 +62,9 @@ export default function () {
 	return (
 		<Layout>
 			<h1>무작위 수 생성</h1>
-			<Settings>
+			<Settings $rows={1} $columns={2}>
 				<div>
-					범위
+					<b>범위</b>
 					<br />
 					<Input
 						type="number"
@@ -99,7 +83,7 @@ export default function () {
 					/>
 				</div>
 				<div>
-					개수
+					<b>개수</b>
 					<br />
 					<Input
 						type="number"
@@ -122,11 +106,7 @@ export default function () {
 					textAlign: "center"
 				}}
 			>
-				{numbers.map((num, index) => (
-					<span style={{ margin: 3 }} key={index}>
-						{num}
-					</span>
-				))}
+				{numbers.join(" ")}
 			</div>
 		</Layout>
 	);
