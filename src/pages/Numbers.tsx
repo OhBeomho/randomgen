@@ -16,11 +16,6 @@ const Settings = styled.div`
 	}
 `;
 
-const NumberElement = styled.div`
-	display: inline-block;
-	margin: 2px;
-`;
-
 type ActionType = "range1" | "range2" | "count";
 
 interface State {
@@ -128,7 +123,9 @@ export default function () {
 				}}
 			>
 				{numbers.map((num, index) => (
-					<NumberElement key={index}>{num}</NumberElement>
+					<span style={{ margin: 3 }} key={index}>
+						{num}
+					</span>
 				))}
 			</div>
 		</Layout>
