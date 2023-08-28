@@ -52,7 +52,7 @@ export default function () {
 		const max = range1 > range2 ? range1 : range2;
 		const result: number[] = [];
 
-		if (range1 < 0 || range2 || 0) {
+		if (range1 < 0 || range2 < 0) {
 			alert("범위는 0 이상이여야 합니다.");
 			return;
 		}
