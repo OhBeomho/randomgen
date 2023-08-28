@@ -68,6 +68,11 @@ export default function () {
 		const max = range1 > range2 ? range1 : range2;
 		const result: number[] = [];
 
+		if (range1 < 0 || range2 || 0) {
+			alert("범위는 0 이상이여야 합니다.");
+			return;
+		}
+
 		for (let i = 0; i < count; i++) {
 			result.push(Math.round(Math.random() * (max - min) + min));
 		}
@@ -86,6 +91,7 @@ export default function () {
 						type="number"
 						name="range1"
 						value={state.range1}
+						min={0}
 						style={getWidthStyle(state.range1)}
 						onChange={changeState}
 					/>
@@ -94,6 +100,7 @@ export default function () {
 						type="number"
 						name="range2"
 						value={state.range2}
+						min={0}
 						style={getWidthStyle(state.range2)}
 						onChange={changeState}
 					/>
