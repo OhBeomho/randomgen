@@ -7,6 +7,7 @@ const StyledInput = styled.input`
 	padding: 2px;
 	margin: 2px;
 	border: 1px solid gray;
+	font-family: monospace;
 	font-size: 16px;
 
 	&:hover,
@@ -29,7 +30,7 @@ export function Input(
 		<StyledInput
 			{...props}
 			onInput={changeValue}
-			style={{ width: ((length === 0 ? 1 : length) + 3) * getTextWidth(16, "monospace") }}
+			style={{ width: ((length === 0 ? 1 : length) + 2) * getTextWidth(16, "monospace") }}
 		/>
 	);
 }
